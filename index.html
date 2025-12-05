@@ -168,7 +168,7 @@
 
         .video-options-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
         }
 
@@ -195,10 +195,38 @@
             transition: all 0.2s ease;
         }
 
-        .video-option-group select:focus {
+        .video-option-group select:focus,
+        .video-option-group input:focus {
             outline: none;
             border-color: #8b5cf6;
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .seed-input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .seed-input::placeholder {
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .seed-info {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            border-left: 2px solid #8b5cf6;
         }
 
         /* Video in messages */
@@ -1262,7 +1290,12 @@
                         <option value="1080p">1080p (8s only)</option>
                     </select>
                 </div>
+                <div class="video-option-group">
+                    <label>Seed (Style)</label>
+                    <input type="number" id="video-seed" placeholder="Random" min="0" max="4294967295" class="seed-input">
+                </div>
             </div>
+            <div class="seed-info">💡 Use the same seed number to get similar visual styles across generations</div>
         </div>
 
         <div class="chat-container">
@@ -1892,6 +1925,7 @@
             const duration = document.getElementById('video-duration').value;
             const aspectRatio = document.getElementById('video-aspect-ratio').value;
             const resolution = document.getElementById('video-resolution').value;
+            const seedInput = document.getElementById('video-seed').value;
             
             // Build request body (duration must be a number, not string)
             const requestBody = {
@@ -1905,6 +1939,11 @@
                     personGeneration: "allow_all"
                 }
             };
+            
+            // Add seed if provided (helps maintain consistent style)
+            if (seedInput && seedInput.trim() !== '') {
+                requestBody.parameters.seed = parseInt(seedInput, 10);
+            }
             
             // Add image if provided (for image-to-video)
             if (images.length > 0) {
@@ -2057,6 +2096,8 @@
         }
 
         async function extendVideo(prompt) {
+            const seedInput = document.getElementById('video-seed').value;
+            
             // Build extension request - video extension requires the video object
             const requestBody = {
                 instances: [{
@@ -2070,6 +2111,11 @@
                     personGeneration: "allow_all"
                 }
             };
+            
+            // Add seed if provided (helps maintain consistent style)
+            if (seedInput && seedInput.trim() !== '') {
+                requestBody.parameters.seed = parseInt(seedInput, 10);
+            }
 
             updateVideoProgress('Starting video extension...');
 
