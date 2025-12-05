@@ -253,6 +253,194 @@
             50% { opacity: 0.7; transform: translateX(300%); }
         }
 
+        /* Extend Video Button */
+        .extend-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .extend-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .extend-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Extension Modal */
+        .extend-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .extend-modal.active {
+            display: flex;
+        }
+
+        .extend-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            animation: messageIn 0.3s ease-out;
+        }
+
+        .extend-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .extend-modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .extend-modal-title svg {
+            width: 20px;
+            height: 20px;
+            color: #8b5cf6;
+        }
+
+        .extend-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .extend-modal-close:hover {
+            color: var(--error);
+        }
+
+        .extend-modal-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .extend-prompt-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            resize: none;
+            min-height: 80px;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .extend-prompt-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .extend-prompt-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .extend-modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .extend-cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .extend-cancel-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        .extend-submit-btn {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .extend-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .extend-submit-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .video-duration-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+
         @media (max-width: 600px) {
             .video-options-grid {
                 grid-template-columns: 1fr;
@@ -1148,6 +1336,36 @@
         </div>
     </div>
 
+    <!-- Video Extension Modal -->
+    <div class="extend-modal" id="extend-modal">
+        <div class="extend-modal-content">
+            <div class="extend-modal-header">
+                <div class="extend-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                    Extend Video (+7 seconds)
+                </div>
+                <button class="extend-modal-close" onclick="closeExtendModal()">×</button>
+            </div>
+            <div class="extend-modal-info">
+                💡 Describe what should happen next in your video. The extension will continue from where the previous video ended.
+            </div>
+            <textarea class="extend-prompt-input" id="extend-prompt" placeholder="Example: The camera pans to reveal a beautiful sunset as the character walks toward the horizon..."></textarea>
+            <div class="extend-modal-actions">
+                <button class="extend-cancel-btn" onclick="closeExtendModal()">Cancel</button>
+                <button class="extend-submit-btn" onclick="submitExtendVideo()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                    Extend Video
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Elements
         const apiKeyInput = document.getElementById('api-key');
@@ -1174,6 +1392,7 @@
         let lastRequest = null;  // For retry functionality
         let currentMode = 'image';  // 'image' or 'video'
         let currentVideoOperation = null;  // Track ongoing video generation
+        let lastGeneratedVideo = null;  // Store last video for extension { operationName, videoUri }
 
         // Initialize
         if (apiKey) {
@@ -1358,6 +1577,7 @@
                 if (role === 'assistant' && showActions) {
                     parts.push('<div class="message-actions">');
                     parts.push('<button class="retry-btn" onclick="retryLastRequest()" title="Generate a different video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Regenerate</button>');
+                    parts.push('<button class="extend-btn" onclick="openExtendModal()" title="Extend this video by 7 seconds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Extend +7s</button>');
                     parts.push(`<a class="use-image-btn" href="${videoUrl}" download="generated-video.mp4" title="Download video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a>`);
                     parts.push('</div>');
                 }
@@ -1748,12 +1968,20 @@
                         throw new Error(statusData.error.message || 'Video generation failed');
                     }
 
-                    // Extract video URI
-                    const videoUri = statusData.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+                    // Extract video info
+                    const videoData = statusData.response?.generateVideoResponse?.generatedSamples?.[0]?.video;
+                    const videoUri = videoData?.uri;
                     
                     if (!videoUri) {
                         throw new Error('No video URI in response');
                     }
+
+                    // Store video reference for extension capability
+                    lastGeneratedVideo = {
+                        operationName: operationName,
+                        video: videoData,
+                        uri: videoUri
+                    };
 
                     updateVideoProgress('Downloading video...');
 
@@ -1764,6 +1992,167 @@
 
             throw new Error('Video generation timed out after 10 minutes');
         }
+
+        // Video Extension Functions
+        function openExtendModal() {
+            if (!lastGeneratedVideo) {
+                alert('No video available to extend. Generate a video first.');
+                return;
+            }
+            document.getElementById('extend-modal').classList.add('active');
+            document.getElementById('extend-prompt').focus();
+        }
+
+        function closeExtendModal() {
+            document.getElementById('extend-modal').classList.remove('active');
+            document.getElementById('extend-prompt').value = '';
+        }
+
+        async function submitExtendVideo() {
+            const prompt = document.getElementById('extend-prompt').value.trim();
+            
+            if (!prompt) {
+                alert('Please describe what should happen next in your video.');
+                return;
+            }
+
+            if (!lastGeneratedVideo || !lastGeneratedVideo.video) {
+                alert('No video available to extend.');
+                closeExtendModal();
+                return;
+            }
+
+            closeExtendModal();
+
+            // Add user message
+            addMessage(`🎬 Extend video: ${prompt}`, 'user', []);
+
+            // Show loading
+            isLoading = true;
+            sendBtn.disabled = true;
+            showVideoLoading();
+            updateVideoProgress('Starting video extension...');
+
+            try {
+                const videoUrl = await extendVideo(prompt);
+                hideLoading();
+                
+                chatContext.push({
+                    user: `Extend video: ${prompt}`,
+                    assistant: '[extended video]',
+                    hadImages: false,
+                    generatedVideo: true
+                });
+                
+                if (chatContext.length > 5) chatContext.shift();
+                
+                addMessage('Here\'s your extended video:', 'assistant', [], true, videoUrl);
+            } catch (error) {
+                hideLoading();
+                addMessage(`Error: ${error.message}`, 'assistant', []);
+            } finally {
+                isLoading = false;
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function extendVideo(prompt) {
+            // Build extension request - video extension requires the video object
+            const requestBody = {
+                instances: [{
+                    prompt: prompt,
+                    video: lastGeneratedVideo.video
+                }],
+                parameters: {
+                    aspectRatio: document.getElementById('video-aspect-ratio').value,
+                    durationSeconds: 8,  // Extensions are always 8 seconds
+                    resolution: "720p",  // Extensions only support 720p
+                    personGeneration: "allow_all"
+                }
+            };
+
+            updateVideoProgress('Starting video extension...');
+
+            // Start the long-running operation
+            const startResponse = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-preview:predictLongRunning?key=${apiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                }
+            );
+
+            if (!startResponse.ok) {
+                const errorData = await startResponse.json();
+                throw new Error(errorData.error?.message || `Failed to start video extension: ${startResponse.status}`);
+            }
+
+            const startData = await startResponse.json();
+            const operationName = startData.name;
+
+            if (!operationName) {
+                throw new Error('No operation name returned from API');
+            }
+
+            updateVideoProgress('Extending video...');
+
+            // Poll for completion
+            let attempts = 0;
+            const maxAttempts = 60;
+            
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 10000));
+                attempts++;
+                
+                updateVideoProgress(`Extending video... (${attempts * 10}s elapsed)`);
+
+                const statusResponse = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${apiKey}`,
+                    { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (!statusResponse.ok) {
+                    const errorData = await statusResponse.json();
+                    throw new Error(errorData.error?.message || 'Failed to check extension status');
+                }
+
+                const statusData = await statusResponse.json();
+
+                if (statusData.done) {
+                    if (statusData.error) {
+                        throw new Error(statusData.error.message || 'Video extension failed');
+                    }
+
+                    const videoData = statusData.response?.generateVideoResponse?.generatedSamples?.[0]?.video;
+                    const videoUri = videoData?.uri;
+                    
+                    if (!videoUri) {
+                        throw new Error('No video URI in response');
+                    }
+
+                    // Update stored video for further extensions
+                    lastGeneratedVideo = {
+                        operationName: operationName,
+                        video: videoData,
+                        uri: videoUri
+                    };
+
+                    updateVideoProgress('Extension complete!');
+
+                    return `${videoUri}&key=${apiKey}`;
+                }
+            }
+
+            throw new Error('Video extension timed out after 10 minutes');
+        }
+
+        // Close extend modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('extend-modal').classList.contains('active')) {
+                closeExtendModal();
+            }
+        });
 
         // Retry last request to get a different result
         async function retryLastRequest() {
