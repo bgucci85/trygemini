@@ -269,22 +269,14 @@
             transition: transform 0.3s ease;
         }
 
-        .examples-header.collapsed svg {
-            transform: rotate(-90deg);
+        .examples-header .chevron {
+            display: none;  /* Hide chevron since examples are always shown */
         }
 
         .examples-content {
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-        }
-
-        .examples-content.collapsed {
-            max-height: 0;
-            opacity: 0;
-            margin-top: 0;
         }
 
         .example-card {
@@ -2516,15 +2508,6 @@
                     clearChat();
                 }
             }
-        });
-
-        // Examples panel toggle
-        const examplesHeader = document.getElementById('examples-header');
-        const examplesContent = document.getElementById('examples-content');
-        
-        examplesHeader.addEventListener('click', () => {
-            examplesHeader.classList.toggle('collapsed');
-            examplesContent.classList.toggle('collapsed');
         });
 
         // Use example prompt
