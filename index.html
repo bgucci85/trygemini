@@ -654,9 +654,15 @@
             margin-left: 0.5rem;
         }
 
+        @media (max-width: 800px) {
+            .video-options-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+        
         @media (max-width: 600px) {
             .video-options-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr) !important;
             }
             
             .mode-btn {
@@ -666,6 +672,12 @@
             
             .examples-content {
                 grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .video-options-grid {
+                grid-template-columns: 1fr !important;
             }
         }
 
@@ -1559,9 +1571,19 @@
                     <polygon points="23 7 16 12 23 17 23 7"/>
                     <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
                 </svg>
-                Video Settings (Veo 3.1)
+                Video Settings
             </div>
-            <div class="video-options-grid">
+            <div class="video-options-grid" style="grid-template-columns: repeat(5, 1fr);">
+                <div class="video-option-group">
+                    <label>Model</label>
+                    <select id="video-model">
+                        <option value="veo-3.1-generate-preview">Veo 3.1</option>
+                        <option value="veo-3.1-fast-generate-preview" selected>Veo 3.1 Fast</option>
+                        <option value="veo-3.0-generate-001">Veo 3</option>
+                        <option value="veo-3.0-fast-generate-001">Veo 3 Fast</option>
+                        <option value="veo-2.0-generate-001">Veo 2</option>
+                    </select>
+                </div>
                 <div class="video-option-group">
                     <label>Duration</label>
                     <select id="video-duration">
@@ -1589,7 +1611,7 @@
                     <input type="number" id="video-seed" placeholder="Random" min="0" max="4294967295" class="seed-input">
                 </div>
             </div>
-            <div class="seed-info">💡 Use the same seed number to get similar visual styles across generations</div>
+            <div class="seed-info">💡 Use the same seed number to get similar visual styles across generations. <strong>Veo 2</strong> is silent (no audio).</div>
         </div>
 
         <!-- Prompt Examples Panel -->
@@ -1856,6 +1878,99 @@
             document.getElementById('examples-panel').classList.toggle('collapsed');
         });
 
+        // Model change handler - update available options
+        document.getElementById('video-model').addEventListener('change', updateModelOptions);
+        
+        function updateModelOptions() {
+            const model = document.getElementById('video-model').value;
+            const durationSelect = document.getElementById('video-duration');
+            const resolutionSelect = document.getElementById('video-resolution');
+            const aspectRatioSelect = document.getElementById('video-aspect-ratio');
+            
+            // Store current values
+            const currentDuration = durationSelect.value;
+            const currentResolution = resolutionSelect.value;
+            
+            // Update duration options based on model
+            if (model.includes('veo-3.1')) {
+                // Veo 3.1: 4, 6, 8 seconds
+                durationSelect.innerHTML = `
+                    <option value="4">4 seconds</option>
+                    <option value="6">6 seconds</option>
+                    <option value="8">8 seconds</option>
+                `;
+                durationSelect.disabled = false;
+            } else if (model.includes('veo-3.0')) {
+                // Veo 3: 8 seconds only
+                durationSelect.innerHTML = `
+                    <option value="8">8 seconds</option>
+                `;
+                durationSelect.disabled = true;
+            } else if (model.includes('veo-2')) {
+                // Veo 2: 5, 6, 7, 8 seconds
+                durationSelect.innerHTML = `
+                    <option value="5">5 seconds</option>
+                    <option value="6">6 seconds</option>
+                    <option value="7">7 seconds</option>
+                    <option value="8">8 seconds</option>
+                `;
+                durationSelect.disabled = false;
+            }
+            
+            // Try to restore previous duration if available
+            const durationOptions = Array.from(durationSelect.options).map(o => o.value);
+            if (durationOptions.includes(currentDuration)) {
+                durationSelect.value = currentDuration;
+            } else {
+                durationSelect.value = durationOptions[durationOptions.length - 1]; // Default to longest
+            }
+            
+            // Update resolution options based on model
+            if (model.includes('veo-2')) {
+                // Veo 2: 720p only
+                resolutionSelect.innerHTML = `<option value="720p">720p</option>`;
+                resolutionSelect.disabled = true;
+            } else if (model.includes('veo-3.0')) {
+                // Veo 3: 720p, 1080p (16:9 only for 1080p)
+                resolutionSelect.innerHTML = `
+                    <option value="720p">720p</option>
+                    <option value="1080p">1080p (16:9 only)</option>
+                `;
+                resolutionSelect.disabled = false;
+            } else {
+                // Veo 3.1: 720p, 1080p (8s only for 1080p)
+                resolutionSelect.innerHTML = `
+                    <option value="720p">720p</option>
+                    <option value="1080p">1080p (8s only)</option>
+                `;
+                resolutionSelect.disabled = false;
+            }
+            
+            // Restore resolution if available
+            if (resolutionSelect.querySelector(`option[value="${currentResolution}"]`)) {
+                resolutionSelect.value = currentResolution;
+            }
+            
+            // Update the info text
+            updateModelInfoText(model);
+        }
+        
+        function updateModelInfoText(model) {
+            const infoEl = document.querySelector('.seed-info');
+            if (model.includes('veo-2')) {
+                infoEl.innerHTML = '⚠️ <strong>Veo 2</strong> generates silent videos (no audio). Seed is not supported.';
+            } else if (model.includes('veo-3.0')) {
+                infoEl.innerHTML = '💡 <strong>Veo 3</strong> always generates audio. Duration is fixed at 8 seconds. Seed helps maintain consistent style.';
+            } else if (model.includes('veo-3.1-fast')) {
+                infoEl.innerHTML = '⚡ <strong>Veo 3.1 Fast</strong> - Optimized for speed. Great for rapid iteration. Seed helps maintain consistent style.';
+            } else {
+                infoEl.innerHTML = '💡 <strong>Veo 3.1</strong> - Highest quality. Use the same seed number to get similar visual styles across generations.';
+            }
+        }
+        
+        // Initialize model options on page load
+        updateModelOptions();
+
         apiKeyInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 saveKeyBtn.click();
@@ -1972,7 +2087,7 @@
         let lightboxImages = [];
         let lightboxIndex = 0;
 
-        function addMessage(content, role, images = [], showActions = true, videoUrl = null) {
+        function addMessage(content, role, images = [], showActions = true, videoUrl = null, modelLabel = null) {
             // Remove welcome message if present
             const welcome = chatMessages.querySelector('.welcome-message');
             if (welcome) welcome.remove();
@@ -1985,7 +2100,12 @@
             
             // Build HTML without extra whitespace
             const parts = [];
-            const labelName = videoUrl ? 'Veo 3.1' : (role === 'user' ? 'You' : 'Nano Banana');
+            let labelName;
+            if (videoUrl) {
+                labelName = modelLabel || getModelDisplayName(document.getElementById('video-model').value);
+            } else {
+                labelName = role === 'user' ? 'You' : 'Nano Banana';
+            }
             parts.push(`<div class="message-label">${labelName}</div>`);
             parts.push('<div class="message-content">');
             
@@ -2116,10 +2236,12 @@
         }
 
         function showVideoLoading() {
+            const model = document.getElementById('video-model').value;
+            const modelName = getModelDisplayName(model);
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'message assistant';
             loadingDiv.id = 'loading-message';
-            loadingDiv.innerHTML = `<div class="message-label">Veo 3.1</div><div class="video-progress"><div class="video-progress-text" id="video-progress-text">Starting video generation...</div><div class="video-progress-bar"><div class="video-progress-fill"></div></div></div>`;
+            loadingDiv.innerHTML = `<div class="message-label">${modelName}</div><div class="video-progress"><div class="video-progress-text" id="video-progress-text">Starting video generation...</div><div class="video-progress-bar"><div class="video-progress-fill"></div></div></div>`;
             chatMessages.appendChild(loadingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -2312,12 +2434,26 @@
             return { text: responseText, images: responseImages };
         }
 
-        // Generate video with Veo 3.1
+        // Get model display name from model ID
+        function getModelDisplayName(modelId) {
+            const modelNames = {
+                'veo-3.1-generate-preview': 'Veo 3.1',
+                'veo-3.1-fast-generate-preview': 'Veo 3.1 Fast',
+                'veo-3.0-generate-001': 'Veo 3',
+                'veo-3.0-fast-generate-001': 'Veo 3 Fast',
+                'veo-2.0-generate-001': 'Veo 2'
+            };
+            return modelNames[modelId] || modelId;
+        }
+
+        // Generate video with selected Veo model
         async function generateVideo(prompt, images) {
+            const model = document.getElementById('video-model').value;
             const duration = document.getElementById('video-duration').value;
             const aspectRatio = document.getElementById('video-aspect-ratio').value;
             const resolution = document.getElementById('video-resolution').value;
             const seedInput = document.getElementById('video-seed').value;
+            const modelName = getModelDisplayName(model);
             
             // Build request body (duration must be a number, not string)
             // Note: personGeneration must be "allow_adult" for image-to-video, "allow_all" for text-only
@@ -2329,13 +2465,17 @@
                 parameters: {
                     aspectRatio: aspectRatio,
                     durationSeconds: parseInt(duration, 10),
-                    resolution: resolution,
                     personGeneration: hasImage ? "allow_adult" : "allow_all"
                 }
             };
             
-            // Add seed if provided (helps maintain consistent style)
-            if (seedInput && seedInput.trim() !== '') {
+            // Resolution is not supported for Veo 2
+            if (!model.includes('veo-2')) {
+                requestBody.parameters.resolution = resolution;
+            }
+            
+            // Add seed if provided (helps maintain consistent style) - only for Veo 3+ models
+            if (seedInput && seedInput.trim() !== '' && !model.includes('veo-2')) {
                 requestBody.parameters.seed = parseInt(seedInput, 10);
             }
             
@@ -2347,11 +2487,11 @@
                 };
             }
 
-            updateVideoProgress('Starting video generation...');
+            updateVideoProgress(`Starting ${modelName} video generation...`);
 
             // Start the long-running operation
             const startResponse = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-preview:predictLongRunning?key=${apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:predictLongRunning?key=${apiKey}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2371,7 +2511,7 @@
                 throw new Error('No operation name returned from API');
             }
 
-            updateVideoProgress('Video generation in progress...');
+            updateVideoProgress(`${modelName} generation in progress...`);
 
             // Poll for completion
             let attempts = 0;
@@ -2381,7 +2521,7 @@
                 await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
                 attempts++;
                 
-                updateVideoProgress(`Generating video... (${attempts * 10}s elapsed)`);
+                updateVideoProgress(`${modelName} generating... (${attempts * 10}s elapsed)`);
 
                 const statusResponse = await fetch(
                     `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${apiKey}`,
@@ -2430,6 +2570,11 @@
         function openExtendModal() {
             if (!lastGeneratedVideo) {
                 alert('No video available to extend. Generate a video first.');
+                return;
+            }
+            const model = document.getElementById('video-model').value;
+            if (!model.includes('veo-3.1')) {
+                alert('Video extension is only supported with Veo 3.1 models. Please select Veo 3.1 or Veo 3.1 Fast to extend videos.');
                 return;
             }
             document.getElementById('extend-modal').classList.add('active');
@@ -2516,7 +2661,9 @@
         }
 
         async function extendVideo(prompt) {
+            const model = document.getElementById('video-model').value;
             const seedInput = document.getElementById('video-seed').value;
+            const modelName = getModelDisplayName(model);
             
             // Build extension request - video extension requires the video object
             const requestBody = {
@@ -2537,11 +2684,11 @@
                 requestBody.parameters.seed = parseInt(seedInput, 10);
             }
 
-            updateVideoProgress('Starting video extension...');
+            updateVideoProgress(`Starting ${modelName} video extension...`);
 
             // Start the long-running operation
             const startResponse = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-preview:predictLongRunning?key=${apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:predictLongRunning?key=${apiKey}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2561,7 +2708,7 @@
                 throw new Error('No operation name returned from API');
             }
 
-            updateVideoProgress('Extending video...');
+            updateVideoProgress(`${modelName} extending video...`);
 
             // Poll for completion
             let attempts = 0;
@@ -2571,7 +2718,7 @@
                 await new Promise(resolve => setTimeout(resolve, 10000));
                 attempts++;
                 
-                updateVideoProgress(`Extending video... (${attempts * 10}s elapsed)`);
+                updateVideoProgress(`${modelName} extending... (${attempts * 10}s elapsed)`);
 
                 const statusResponse = await fetch(
                     `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${apiKey}`,
