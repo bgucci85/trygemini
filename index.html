@@ -2320,6 +2320,8 @@
             const seedInput = document.getElementById('video-seed').value;
             
             // Build request body (duration must be a number, not string)
+            // Note: personGeneration must be "allow_adult" for image-to-video, "allow_all" for text-only
+            const hasImage = images.length > 0;
             const requestBody = {
                 instances: [{
                     prompt: prompt
@@ -2328,7 +2330,7 @@
                     aspectRatio: aspectRatio,
                     durationSeconds: parseInt(duration, 10),
                     resolution: resolution,
-                    personGeneration: "allow_all"
+                    personGeneration: hasImage ? "allow_adult" : "allow_all"
                 }
             };
             
@@ -2338,7 +2340,7 @@
             }
             
             // Add image if provided (for image-to-video)
-            if (images.length > 0) {
+            if (hasImage) {
                 requestBody.instances[0].image = {
                     bytesBase64Encoded: images[0].data,
                     mimeType: images[0].mimeType
