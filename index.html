@@ -1066,6 +1066,31 @@
             text-align: center;
         }
 
+        .lightbox-download {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lightbox-download:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .lightbox-download svg {
+            width: 16px;
+            height: 16px;
+        }
+
         /* Video Modal */
         .video-modal {
             display: none;
@@ -1762,6 +1787,14 @@
             <button onclick="navigateLightbox(-1)">← Prev</button>
             <span class="lightbox-counter" id="lightbox-counter">1 / 1</span>
             <button onclick="navigateLightbox(1)">Next →</button>
+            <button class="lightbox-download" onclick="downloadCurrentImage()" title="Download high-resolution image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download
+            </button>
         </div>
     </div>
 
@@ -2085,6 +2118,8 @@
 
         // Lightbox state
         let lightboxImages = [];
+        let lightboxBase64Data = []; // Store original base64 data for high-res download
+        let lightboxMimeTypes = []; // Store mime types
         let lightboxIndex = 0;
 
         function addMessage(content, role, images = [], showActions = true, videoUrl = null, modelLabel = null) {
@@ -2151,6 +2186,7 @@
                 if (role === 'assistant' && showActions && !videoUrl) {
                     parts.push('<div class="message-actions">');
                     parts.push('<button class="retry-btn" onclick="retryLastRequest()" title="Generate a different result"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Regenerate</button>');
+                    parts.push(`<button class="use-image-btn" onclick="downloadImageFromGallery('${galleryId}')" title="Download high-resolution image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>`);
                     parts.push(`<button class="use-image-btn" onclick="useGeneratedImage('${galleryId}')" title="Use this image in your next message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Use in Chat</button>`);
                     parts.push('</div>');
                 }
@@ -2172,6 +2208,9 @@
             
             const images = gallery.querySelectorAll('img');
             lightboxImages = Array.from(images).map(img => img.src);
+            // Store original base64 data and mime types for high-res download
+            lightboxBase64Data = Array.from(images).map(img => img.dataset.base64 || null);
+            lightboxMimeTypes = Array.from(images).map(img => img.dataset.mime || 'image/png');
             lightboxIndex = index;
             
             updateLightbox();
@@ -2195,9 +2234,73 @@
             document.getElementById('lightbox-img').src = lightboxImages[lightboxIndex];
             document.getElementById('lightbox-counter').textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
             
-            // Hide nav if only one image
+            // Hide nav if only one image (but always show download button)
             const nav = document.querySelector('.lightbox-nav');
-            nav.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
+            nav.style.display = 'flex';
+        }
+
+        function downloadCurrentImage() {
+            const base64Data = lightboxBase64Data[lightboxIndex];
+            const mimeType = lightboxMimeTypes[lightboxIndex] || 'image/png';
+            
+            if (!base64Data) {
+                // Fallback: try to download the displayed image
+                const img = document.getElementById('lightbox-img');
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = `generated-image-${lightboxIndex + 1}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return;
+            }
+            
+            downloadImageFromBase64(base64Data, mimeType, lightboxIndex + 1);
+        }
+
+        function downloadImageFromGallery(galleryId) {
+            const gallery = document.getElementById(galleryId);
+            if (!gallery) return;
+            
+            const images = gallery.querySelectorAll('img');
+            if (images.length === 0) return;
+            
+            // Download the first image (or we could add a parameter to specify which one)
+            const firstImg = images[0];
+            const base64Data = firstImg.dataset.base64;
+            const mimeType = firstImg.dataset.mime || 'image/png';
+            
+            if (!base64Data) {
+                alert('Unable to download: image data not available');
+                return;
+            }
+            
+            downloadImageFromBase64(base64Data, mimeType, 1);
+        }
+
+        function downloadImageFromBase64(base64Data, mimeType, index) {
+            // Convert base64 to blob and download
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: mimeType });
+            
+            // Determine file extension from mime type
+            const extension = mimeType === 'image/jpeg' || mimeType === 'image/jpg' ? 'jpg' : 'png';
+            const filename = `generated-image-${index}.${extension}`;
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         // Close lightbox on escape key
@@ -2383,6 +2486,9 @@
                     topK: 40,
                     topP: 0.95,
                     maxOutputTokens: 8192,
+                    imageConfig: {
+                        imageSize: "2K" // Request 2K resolution (must be uppercase)
+                    }
                 }
             };
 
