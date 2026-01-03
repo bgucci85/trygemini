@@ -1635,8 +1635,14 @@
                     <label>Seed (Style)</label>
                     <input type="number" id="video-seed" placeholder="Random" min="0" max="4294967295" class="seed-input">
                 </div>
+                <div class="video-option-group">
+                    <label>End Frame (Veo 3.1 only)</label>
+                    <input type="file" id="video-end-frame" accept="image/*" style="display: none;">
+                    <button type="button" onclick="document.getElementById('video-end-frame').click()" style="padding: 8px 12px; background: #7c3aed; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Select End Frame</button>
+                    <div id="end-frame-preview" style="margin-top: 8px;"></div>
+                </div>
             </div>
-            <div class="seed-info">💡 Use the same seed number to get similar visual styles across generations. <strong>Veo 2</strong> is silent (no audio).</div>
+            <div class="seed-info">💡 Use the same seed number to get similar visual styles across generations. <strong>Veo 2</strong> is silent (no audio). <strong>End frame</strong> only works with Veo 3.1/3.1 Fast.</div>
         </div>
 
         <!-- Prompt Examples Panel -->
@@ -2045,6 +2051,22 @@
             renderImageGallery();
             fileInput.value = '';
         });
+
+        // Handle end frame selection
+        const endFrameInput = document.getElementById('video-end-frame');
+        if (endFrameInput) {
+            endFrameInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const preview = document.getElementById('end-frame-preview');
+                        preview.innerHTML = `<div style="display: flex; align-items: center; gap: 8px;"><img src="${event.target.result}" style="max-width: 80px; max-height: 80px; border-radius: 4px; border: 2px solid #7c3aed;"><span style="font-size: 11px; color: #666;">${file.name}</span><button onclick="document.getElementById('video-end-frame').value=''; document.getElementById('end-frame-preview').innerHTML='';" style="padding: 4px 8px; background: #ef4444; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">✕</button></div>`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
         clearAllBtn.addEventListener('click', () => {
             currentImages = [];
@@ -2585,11 +2607,31 @@
                 requestBody.parameters.seed = parseInt(seedInput, 10);
             }
             
-            // Add image if provided (for image-to-video)
+            // Add start frame (image) if provided (for image-to-video)
             if (hasImage) {
                 requestBody.instances[0].image = {
                     bytesBase64Encoded: images[0].data,
                     mimeType: images[0].mimeType
+                };
+            }
+            
+            // Add end frame if provided (Veo 3.1+ only)
+            const endFrameInput = document.getElementById('video-end-frame');
+            if (endFrameInput && endFrameInput.files && endFrameInput.files.length > 0 && model.includes('veo-3.1')) {
+                const endFrameFile = endFrameInput.files[0];
+                const endFrameData = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve({
+                        data: reader.result.split(',')[1],
+                        mimeType: endFrameFile.type
+                    });
+                    reader.onerror = reject;
+                    reader.readAsDataURL(endFrameFile);
+                });
+                
+                requestBody.instances[0].lastFrame = {
+                    bytesBase64Encoded: endFrameData.data,
+                    mimeType: endFrameData.mimeType
                 };
             }
 
