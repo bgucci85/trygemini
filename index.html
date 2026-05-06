@@ -1602,8 +1602,9 @@
                 <div class="video-option-group">
                     <label>Model</label>
                     <select id="video-model">
-                        <option value="veo-3.1-generate-001">Veo 3.1</option>
-                        <option value="veo-3.1-fast-generate-001" selected>Veo 3.1 Fast</option>
+                        <option value="veo-3.1-generate-preview">Veo 3.1</option>
+                        <option value="veo-3.1-fast-generate-preview" selected>Veo 3.1 Fast</option>
+                        <option value="veo-3.1-lite-generate-preview">Veo 3.1 Lite</option>
                         <option value="veo-3.0-generate-001">Veo 3</option>
                         <option value="veo-3.0-fast-generate-001">Veo 3 Fast</option>
                         <option value="veo-2.0-generate-001">Veo 2</option>
@@ -2002,6 +2003,8 @@
                 infoEl.innerHTML = '💡 <strong>Veo 3</strong> always generates audio. Duration is fixed at 8 seconds. Seed helps maintain consistent style.';
             } else if (model.includes('veo-3.1-fast')) {
                 infoEl.innerHTML = '⚡ <strong>Veo 3.1 Fast</strong> - Optimized for speed. Great for rapid iteration. Seed helps maintain consistent style.';
+            } else if (model.includes('veo-3.1-lite')) {
+                infoEl.innerHTML = '🪶 <strong>Veo 3.1 Lite</strong> - Lightweight and efficient. No video extension or reference images. Max 1080p.';
             } else {
                 infoEl.innerHTML = '💡 <strong>Veo 3.1</strong> - Highest quality. Use the same seed number to get similar visual styles across generations.';
             }
@@ -2565,8 +2568,9 @@
         // Get model display name from model ID
         function getModelDisplayName(modelId) {
             const modelNames = {
-                'veo-3.1-generate-001': 'Veo 3.1',
-                'veo-3.1-fast-generate-001': 'Veo 3.1 Fast',
+                'veo-3.1-generate-preview': 'Veo 3.1',
+                'veo-3.1-fast-generate-preview': 'Veo 3.1 Fast',
+                'veo-3.1-lite-generate-preview': 'Veo 3.1 Lite',
                 'veo-3.0-generate-001': 'Veo 3',
                 'veo-3.0-fast-generate-001': 'Veo 3 Fast',
                 'veo-2.0-generate-001': 'Veo 2'
